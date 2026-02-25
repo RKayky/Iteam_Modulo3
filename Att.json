@@ -1,0 +1,25 @@
+{
+  "UserName": "Maria Silva",
+  "TypeUser": 3,
+  "status_g": 1,
+  "DataExpiracao": "2025-12-31",
+  "preferencias": {
+    "notification_profile": true,
+    "theme": "dark"
+  },
+  "list_logs": [
+    {
+      "action": "LOGIN",
+      "type s": 1738713600
+    },
+    {
+      "action": "PROFILE_UPDATE",
+      "type_s": 1738627200
+    },
+    {
+      "action": "LOGIN",
+      "type s": 1738540800
+    }
+  ],
+  "balance": 150.75
+}

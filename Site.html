@@ -1,0 +1,1768 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoeFácil - Busca de Passagens Aéreas</title>
+    <style>
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --primary-light: #38bdf8;
+            --primary-lighter: #e0f2fe;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #94a3b8;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px rgba(0,0,0,0.1);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+            gap: 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo-text {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-link {
+            padding: 0.5rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background: var(--primary-lighter);
+            color: var(--primary);
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .icon-btn {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--error);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Search Section */
+        .search-section {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 2rem 0;
+        }
+
+        .search-card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .trip-type-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            position: relative;
+            bottom: -1px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .search-inputs {
+            display: grid;
+            grid-template-columns: 2fr auto 2fr 1.5fr 1.5fr 1.5fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-label {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .search-input {
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-lighter);
+        }
+
+        .swap-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .swap-btn:hover {
+            background: var(--primary-lighter);
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: rotate(180deg);
+        }
+
+        .search-btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem 0;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 90px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .filters-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .clear-filters {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+        }
+
+        .clear-filters:hover {
+            background: var(--primary-lighter);
+        }
+
+        .filter-section {
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .filter-section:last-of-type {
+            border-bottom: none;
+        }
+
+        .filter-toggle {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            background: none;
+            border: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .filter-toggle .chevron {
+            transition: transform 0.3s;
+            color: var(--text-tertiary);
+        }
+
+        .filter-toggle.active .chevron {
+            transform: rotate(180deg);
+        }
+
+        .filter-content {
+            padding: 0.5rem 0;
+        }
+
+        .filter-search {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .checkbox-label,
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-label:hover,
+        .radio-label:hover {
+            background: var(--bg-secondary);
+        }
+
+        .checkbox-label input[type="checkbox"],
+        .radio-label input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .checkbox-custom,
+        .radio-custom {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .radio-custom {
+            border-radius: 50%;
+        }
+
+        .checkbox-label input:checked ~ .checkbox-custom,
+        .radio-label input:checked ~ .radio-custom {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .checkbox-label input:checked ~ .checkbox-custom::after {
+            content: '✓';
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .radio-label input:checked ~ .radio-custom::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .label-text {
+            flex: 1;
+            font-size: 0.875rem;
+        }
+
+        .count {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            background: var(--bg-tertiary);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+        }
+
+        .airline-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .airline-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .price-from {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        /* Price Range */
+        .price-range {
+            padding: 1rem 0;
+        }
+
+        .price-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .price-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .price-input-group label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .price-input-group input {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+        }
+
+        /* Time Slots */
+        .time-slots {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .time-slot-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .time-slot-btn:hover {
+            border-color: var(--primary-light);
+            background: var(--primary-lighter);
+        }
+
+        .time-slot-btn.active {
+            border-color: var(--primary);
+            background: var(--primary-lighter);
+            color: var(--primary);
+        }
+
+        .time-slot-btn span {
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .time-slot-btn small {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        /* Duration */
+        .duration-value {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Applied Filters */
+        .applied-filters {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .filter-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 1rem;
+            background: var(--primary-lighter);
+            color: var(--primary);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .remove-tag {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 0;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .remove-tag:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Results */
+        .results-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .results-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-primary);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .results-info h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .results-info p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .results-info strong {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .sort-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            background: var(--bg-primary);
+            cursor: pointer;
+        }
+
+        /* Flight Cards */
+        .flights-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .flight-card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .flight-card:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        .flight-card.best-deal {
+            border-color: var(--success);
+        }
+
+        .deal-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--success);
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: var(--radius-md);
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 1;
+        }
+
+        .flight-main {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 2rem;
+            padding: 2rem;
+            align-items: center;
+        }
+
+        .airline-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .airline-logo.gol {
+            background: linear-gradient(135deg, #ff6b00 0%, #cc5500 100%);
+        }
+
+        .airline-logo.azul {
+            background: linear-gradient(135deg, #0080ff 0%, #0056b3 100%);
+        }
+
+        .flight-details {
+            flex: 1;
+        }
+
+        .flight-route {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1.5rem;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .departure,
+        .arrival {
+            text-align: center;
+        }
+
+        .departure {
+            text-align: left;
+        }
+
+        .arrival {
+            text-align: right;
+        }
+
+        .time {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .airport {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .city {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        .flight-duration {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .duration-line {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--border-color);
+        }
+
+        .duration-line svg {
+            position: relative;
+            z-index: 1;
+            color: var(--primary);
+        }
+
+        .stop-dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--text-tertiary);
+            border-radius: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        .duration {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .stops {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            padding: 2px 8px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+        }
+
+        .stops.direct {
+            background: var(--success);
+            color: white;
+        }
+
+        .stop-info {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            margin-top: 0.5rem;
+        }
+
+        .flight-price {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .price-label {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        .price-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .price-installment {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        .select-btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .select-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .flight-footer {
+            background: var(--bg-secondary);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .details-toggle {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+
+        .details-toggle:hover {
+            text-decoration: underline;
+        }
+
+        .flight-features {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .feature {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            padding: 2rem 0;
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--primary-lighter);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-numbers {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .page-number {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .page-number:hover {
+            background: var(--primary-lighter);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .page-number.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 280px 1fr;
+            }
+            
+            .search-inputs {
+                grid-template-columns: 1fr;
+            }
+            
+            .swap-btn {
+                transform: rotate(90deg);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+            }
+            
+            .nav-menu {
+                display: none;
+            }
+            
+            .flight-main {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .flight-price {
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .search-card {
+                padding: 1rem;
+            }
+            
+            .trip-type-tabs {
+                flex-direction: column;
+            }
+            
+            .flight-route {
+                grid-template-columns: 1fr;
+            }
+            
+            .departure,
+            .arrival {
+                text-align: left;
+            }
+            
+            .time-slots {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+                        <path d="M18 6L30 12L18 18L6 12L18 6Z" fill="#0ea5e9"/>
+                        <path d="M6 18L18 24L30 18" stroke="#0ea5e9" stroke-width="2" fill="none"/>
+                        <path d="M6 24L18 30L30 24" stroke="#0ea5e9" stroke-width="2" fill="none"/>
+                    </svg>
+                    <span class="logo-text">VoeFácil</span>
+                </div>
+                <nav class="nav-menu">
+                    <a href="#" class="nav-link active">Voos</a>
+                    <a href="#" class="nav-link">Hotéis</a>
+                    <a href="#" class="nav-link">Pacotes</a>
+                    <a href="#" class="nav-link">Minhas Viagens</a>
+                </nav>
+                <div class="user-actions">
+                    <button class="icon-btn">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M10 3L12.5 8L18 9L14 13L15 18.5L10 15.5L5 18.5L6 13L2 9L7.5 8L10 3Z" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                    </button>
+                    <button class="icon-btn">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M15 7C15 5.67 14.47 4.4 13.54 3.46C12.6 2.53 11.33 2 10 2C8.67 2 7.4 2.53 6.46 3.46C5.53 4.4 5 5.67 5 7C5 13 2.5 15 2.5 15H17.5C17.5 15 15 13 15 7Z" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    <div class="user-profile">
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Section -->
+    <section class="search-section">
+        <div class="container">
+            <div class="search-card">
+                <div class="trip-type-tabs">
+                    <button class="tab-btn active">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M3 10H17M17 10L13 6M17 10L13 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Ida e volta
+                    </button>
+                    <button class="tab-btn">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M3 10H17M17 10L13 6M17 10L13 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Somente ida
+                    </button>
+                    <button class="tab-btn">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Múltiplos destinos
+                    </button>
+                </div>
+
+                <div class="search-inputs">
+                    <div class="input-group">
+                        <label class="input-label">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                            Origem
+                        </label>
+                        <input type="text" class="search-input" placeholder="De onde você sai?" value="São Paulo, GRU">
+                    </div>
+
+                    <button class="swap-btn">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M4 7L7 4M7 4L10 7M7 4V16M16 13L13 16M13 16L10 13M13 16V4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+
+                    <div class="input-group">
+                        <label class="input-label">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M8 14C11.31 14 14 11.31 14 8C14 4.69 11.31 2 8 2C4.69 2 2 4.69 2 8C2 11.31 4.69 14 8 14Z" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                            Destino
+                        </label>
+                        <input type="text" class="search-input" placeholder="Para onde você vai?" value="Rio de Janeiro, GIG">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <rect x="3" y="4" width="10" height="9" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M5 2V4M11 2V4M3 7H13" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                            Ida
+                        </label>
+                        <input type="text" class="search-input" placeholder="Data de ida" value="15 Fev, Sex">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <rect x="3" y="4" width="10" height="9" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M5 2V4M11 2V4M3 7H13" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                            Volta
+                        </label>
+                        <input type="text" class="search-input" placeholder="Data de volta" value="22 Fev, Sex">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <circle cx="8" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M3 13C3 10.5 5.2 8.5 8 8.5C10.8 8.5 13 10.5 13 13" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                            Passageiros
+                        </label>
+                        <input type="text" class="search-input" placeholder="Passageiros" value="1 Adulto, Econômica" readonly>
+                    </div>
+
+                    <button class="search-btn">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <circle cx="8" cy="8" r="6" stroke="white" stroke-width="2"/>
+                            <path d="M12.5 12.5L17 17" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Buscar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="content-grid">
+                <!-- Sidebar Filtros -->
+                <aside class="sidebar">
+                    <div class="filters-header">
+                        <h2>Filtros</h2>
+                        <button class="clear-filters">Limpar</button>
+                    </div>
+
+                    <!-- Preço -->
+                    <div class="filter-section">
+                        <button class="filter-toggle active">
+                            <span>Faixa de Preço</span>
+                            <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </button>
+                        <div class="filter-content">
+                            <div class="price-range">
+                                <div class="price-inputs">
+                                    <div class="price-input-group">
+                                        <label>Mínimo</label>
+                                        <input type="number" value="200">
+                                    </div>
+                                    <div class="price-input-group">
+                                        <label>Máximo</label>
+                                        <input type="number" value="2000">
+                                    </div>
+                                </div>
+                                <input type="range" min="0" max="5000" value="200" class="slider">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paradas -->
+                    <div class="filter-section">
+                        <button class="filter-toggle active">
+                            <span>Paradas</span>
+                            <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </button>
+                        <div class="filter-content">
+                            <label class="checkbox-label">
+                                <input type="checkbox">
+                                <span class="checkbox-custom"></span>
+                                <span class="label-text">Direto</span>
+                                <span class="count">42</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox">
+                                <span class="checkbox-custom"></span>
+                                <span class="label-text">1 parada</span>
+                                <span class="count">128</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox">
+                                <span class="checkbox-custom"></span>
+                                <span class="label-text">2+ paradas</span>
+                                <span class="count">67</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Companhias -->
+                    <div class="filter-section">
+                        <button class="filter-toggle active">
+                            <span>Companhias Aéreas</span>
+                            <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </button>
+                        <div class="filter-content">
+                            <input type="text" class="filter-search" placeholder="Buscar...">
+                            <label class="checkbox-label">
+                                <input type="checkbox">
+                                <span class="checkbox-custom"></span>
+                                <div class="airline-info">
+                                    <span class="airline-name">LATAM Airlines</span>
+                                    <span class="price-from">a partir de R$ 450</span>
+                                </div>
+                                <span class="count">89</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox">
+                                <span class="checkbox-custom"></span>
+                                <div class="airline-info">
+                                    <span class="airline-name">GOL</span>
+                                    <span class="price-from">a partir de R$ 420</span>
+                                </div>
+                                <span class="count">76</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox">
+                                <span class="checkbox-custom"></span>
+                                <div class="airline-info">
+                                    <span class="airline-name">Azul</span>
+                                    <span class="price-from">a partir de R$ 480</span>
+                                </div>
+                                <span class="count">52</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Horário -->
+                    <div class="filter-section">
+                        <button class="filter-toggle active">
+                            <span>Horário de Partida</span>
+                            <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </button>
+                        <div class="filter-content">
+                            <div class="time-slots">
+                                <button class="time-slot-btn">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M12 7V12L15 15" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                    <span>Madrugada</span>
+                                    <small>00:00 - 06:00</small>
+                                </button>
+                                <button class="time-slot-btn">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M12 7V12L15 15" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                    <span>Manhã</span>
+                                    <small>06:00 - 12:00</small>
+                                </button>
+                                <button class="time-slot-btn active">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M12 7V12L15 15" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                    <span>Tarde</span>
+                                    <small>12:00 - 18:00</small>
+                                </button>
+                                <button class="time-slot-btn">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M12 7V12L15 15" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                    <span>Noite</span>
+                                    <small>18:00 - 00:00</small>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Duração -->
+                    <div class="filter-section">
+                        <button class="filter-toggle active">
+                            <span>Duração Máxima</span>
+                            <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </button>
+                        <div class="filter-content">
+                            <div class="duration-value">Até <strong>12h</strong></div>
+                            <input type="range" min="1" max="24" value="12" class="slider">
+                        </div>
+                    </div>
+
+                    <!-- Classe -->
+                    <div class="filter-section">
+                        <button class="filter-toggle active">
+                            <span>Classe</span>
+                            <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </button>
+                        <div class="filter-content">
+                            <label class="radio-label">
+                                <input type="radio" name="class" checked>
+                                <span class="radio-custom"></span>
+                                <span class="label-text">Econômica</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="class">
+                                <span class="radio-custom"></span>
+                                <span class="label-text">Executiva</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="class">
+                                <span class="radio-custom"></span>
+                                <span class="label-text">Primeira Classe</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="applied-filters"></div>
+                </aside>
+
+                <!-- Results -->
+                <section class="results-section">
+                    <div class="results-toolbar">
+                        <div class="results-info">
+                            <h1>Voos Disponíveis</h1>
+                            <p>Encontramos <strong>237 voos</strong></p>
+                        </div>
+                        <select class="sort-select">
+                            <option>Recomendados</option>
+                            <option>Menor preço</option>
+                            <option>Menor duração</option>
+                        </select>
+                    </div>
+
+                    <div class="flights-list">
+                        <!-- Voo 1 -->
+                        <article class="flight-card best-deal">
+                            <div class="deal-badge">Melhor Preço</div>
+                            <div class="flight-main">
+                                <div class="airline-logo">LATAM</div>
+                                <div class="flight-details">
+                                    <div class="flight-route">
+                                        <div class="departure">
+                                            <div class="time">14:30</div>
+                                            <div class="airport">GRU</div>
+                                            <div class="city">São Paulo</div>
+                                        </div>
+                                        <div class="flight-duration">
+                                            <div class="duration-line">
+                                                <span class="line"></span>
+                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                                    <path d="M10 2L18 6V10L10 14L2 10V6L10 2Z" fill="currentColor"/>
+                                                </svg>
+                                            </div>
+                                            <span class="duration">1h 10min</span>
+                                            <span class="stops direct">Direto</span>
+                                        </div>
+                                        <div class="arrival">
+                                            <div class="time">15:40</div>
+                                            <div class="airport">GIG</div>
+                                            <div class="city">Rio de Janeiro</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flight-price">
+                                    <div class="price-label">Total</div>
+                                    <div class="price-amount">R$ 450</div>
+                                    <div class="price-installment">ou 5x R$ 90</div>
+                                    <button class="select-btn">Selecionar</button>
+                                </div>
+                            </div>
+                            <div class="flight-footer">
+                                <button class="details-toggle">Ver detalhes</button>
+                                <div class="flight-features">
+                                    <span class="feature">✓ Bagagem incluída</span>
+                                    <span class="feature">✓ Alteração grátis</span>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Voo 2 -->
+                        <article class="flight-card">
+                            <div class="flight-main">
+                                <div class="airline-logo gol">GOL</div>
+                                <div class="flight-details">
+                                    <div class="flight-route">
+                                        <div class="departure">
+                                            <div class="time">08:15</div>
+                                            <div class="airport">GRU</div>
+                                            <div class="city">São Paulo</div>
+                                        </div>
+                                        <div class="flight-duration">
+                                            <div class="duration-line">
+                                                <span class="line"></span>
+                                                <span class="stop-dot"></span>
+                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                                    <path d="M10 2L18 6V10L10 14L2 10V6L10 2Z" fill="currentColor"/>
+                                                </svg>
+                                            </div>
+                                            <span class="duration">4h 25min</span>
+                                            <span class="stops">1 parada</span>
+                                        </div>
+                                        <div class="arrival">
+                                            <div class="time">12:40</div>
+                                            <div class="airport">GIG</div>
+                                            <div class="city">Rio de Janeiro</div>
+                                        </div>
+                                    </div>
+                                    <div class="stop-info">Escala em Brasília (BSB) • 2h 30min</div>
+                                </div>
+                                <div class="flight-price">
+                                    <div class="price-label">Total</div>
+                                    <div class="price-amount">R$ 420</div>
+                                    <div class="price-installment">ou 5x R$ 84</div>
+                                    <button class="select-btn">Selecionar</button>
+                                </div>
+                            </div>
+                            <div class="flight-footer">
+                                <button class="details-toggle">Ver detalhes</button>
+                                <div class="flight-features">
+                                    <span class="feature">✓ Bagagem de mão</span>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Voo 3 -->
+                        <article class="flight-card">
+                            <div class="flight-main">
+                                <div class="airline-logo azul">AZUL</div>
+                                <div class="flight-details">
+                                    <div class="flight-route">
+                                        <div class="departure">
+                                            <div class="time">18:45</div>
+                                            <div class="airport">GRU</div>
+                                            <div class="city">São Paulo</div>
+                                        </div>
+                                        <div class="flight-duration">
+                                            <div class="duration-line">
+                                                <span class="line"></span>
+                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                                    <path d="M10 2L18 6V10L10 14L2 10V6L10 2Z" fill="currentColor"/>
+                                                </svg>
+                                            </div>
+                                            <span class="duration">1h 15min</span>
+                                            <span class="stops direct">Direto</span>
+                                        </div>
+                                        <div class="arrival">
+                                            <div class="time">20:00</div>
+                                            <div class="airport">SDU</div>
+                                            <div class="city">Rio de Janeiro</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flight-price">
+                                    <div class="price-label">Total</div>
+                                    <div class="price-amount">R$ 480</div>
+                                    <div class="price-installment">ou 6x R$ 80</div>
+                                    <button class="select-btn">Selecionar</button>
+                                </div>
+                            </div>
+                            <div class="flight-footer">
+                                <button class="details-toggle">Ver detalhes</button>
+                                <div class="flight-features">
+                                    <span class="feature">✓ WiFi a bordo</span>
+                                    <span class="feature">✓ Bagagem incluída</span>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <!-- Paginação -->
+                    <div class="pagination">
+                        <button class="pagination-btn" disabled>← Anterior</button>
+                        <div class="pagination-numbers">
+                            <button class="page-number active">1</button>
+                            <button class="page-number">2</button>
+                            <button class="page-number">3</button>
+                            <button class="page-number">4</button>
+                            <span>...</span>
+                            <button class="page-number">24</button>
+                        </div>
+                        <button class="pagination-btn">Próxima →</button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            initFilters();
+            initSearch();
+            initFlights();
+            initPagination();
+        });
+
+        // FILTROS
+        function initFilters() {
+            const filterToggles = document.querySelectorAll('.filter-toggle');
+            filterToggles.forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                });
+            });
+
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateFilters);
+            });
+
+            const radios = document.querySelectorAll('input[type="radio"]');
+            radios.forEach(radio => {
+                radio.addEventListener('change', updateFilters);
+            });
+
+            const timeSlots = document.querySelectorAll('.time-slot-btn');
+            timeSlots.forEach(slot => {
+                slot.addEventListener('click', function() {
+                    timeSlots.forEach(s => s.classList.remove('active'));
+                    this.classList.add('active');
+                    updateFilters();
+                });
+            });
+
+            const clearBtn = document.querySelector('.clear-filters');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', clearAllFilters);
+            }
+
+            const durationSlider = document.querySelector('.filter-section:nth-child(5) .slider');
+            const durationValue = document.querySelector('.duration-value strong');
+            if (durationSlider && durationValue) {
+                durationSlider.addEventListener('input', function() {
+                    durationValue.textContent = this.value + 'h';
+                });
+            }
+
+            const filterSearch = document.querySelector('.filter-search');
+            if (filterSearch) {
+                filterSearch.addEventListener('input', function() {
+                    const term = this.value.toLowerCase();
+                    const labels = this.parentElement.querySelectorAll('.checkbox-label');
+                    labels.forEach(label => {
+                        const text = label.textContent.toLowerCase();
+                        label.style.display = text.includes(term) ? 'flex' : 'none';
+                    });
+                });
+            }
+        }
+
+        function updateFilters() {
+            const appliedContainer = document.querySelector('.applied-filters');
+            if (!appliedContainer) return;
+
+            const checkedFilters = document.querySelectorAll('input[type="checkbox"]:checked');
+            const activeTimeSlot = document.querySelector('.time-slot-btn.active');
+            
+            let html = '';
+
+            checkedFilters.forEach(filter => {
+                const label = filter.closest('label');
+                const text = label.querySelector('.label-text, .airline-name');
+                if (text) {
+                    html += `<div class="filter-tag">${text.textContent.trim()}<button class="remove-tag" onclick="removeFilterTag(this)">×</button></div>`;
+                }
+            });
+
+            if (activeTimeSlot) {
+                const slotName = activeTimeSlot.querySelector('span').textContent;
+                html += `<div class="filter-tag">${slotName}<button class="remove-tag" onclick="removeTimeSlotTag(this)">×</button></div>`;
+            }
+
+            appliedContainer.innerHTML = html;
+            updateResultsCount();
+        }
+
+        function clearAllFilters() {
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.querySelector('input[type="radio"][name="class"]').checked = true;
+            document.querySelectorAll('.time-slot-btn').forEach(slot => slot.classList.remove('active'));
+            updateFilters();
+        }
+
+        function removeFilterTag(button) {
+            const tag = button.parentElement;
+            const text = tag.textContent.replace('×', '').trim();
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                const label = cb.closest('label');
+                const labelText = label.querySelector('.label-text, .airline-name');
+                if (labelText && labelText.textContent.trim() === text) {
+                    cb.checked = false;
+                }
+            });
+            updateFilters();
+        }
+
+        function removeTimeSlotTag(button) {
+            document.querySelectorAll('.time-slot-btn').forEach(slot => slot.classList.remove('active'));
+            updateFilters();
+        }
+
+        function updateResultsCount() {
+            const count = Math.floor(Math.random() * 200) + 50;
+            const countEl = document.querySelector('.results-info p strong');
+            if (countEl) {
+                countEl.textContent = count + ' voos';
+            }
+        }
+
+        // BUSCA
+        function initSearch() {
+            const searchBtn = document.querySelector('.search-btn');
+            if (searchBtn) {
+                searchBtn.addEventListener('click', performSearch);
+            }
+
+            const swapBtn = document.querySelector('.swap-btn');
+            if (swapBtn) {
+                swapBtn.addEventListener('click', swapLocations);
+            }
+
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        }
+
+        function performSearch() {
+            document.querySelector('.results-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function swapLocations() {
+            const inputs = document.querySelectorAll('.input-group .search-input');
+            const temp = inputs[0].value;
+            inputs[0].value = inputs[1].value;
+            inputs[1].value = temp;
+        }
+
+        // VOOS
+        function initFlights() {
+            const selectBtns = document.querySelectorAll('.select-btn');
+            selectBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const card = this.closest('.flight-card');
+                    const airline = card.querySelector('.airline-logo').textContent;
+                    const price = card.querySelector('.price-amount').textContent;
+                    alert(`Voo ${airline} selecionado!\nPreço: ${price}\n\nProsseguindo para checkout...`);
+                });
+            });
+
+            const detailsBtns = document.querySelectorAll('.details-toggle');
+            detailsBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    alert('Detalhes do voo:\n\n- Informações da aeronave\n- Política de bagagem\n- Serviços inclusos\n- Horários detalhados');
+                });
+            });
+
+            const sortSelect = document.querySelector('.sort-select');
+            if (sortSelect) {
+                sortSelect.addEventListener('change', function() {
+                    alert('Reordenando voos por: ' + this.options[this.selectedIndex].text);
+                });
+            }
+        }
+
+        // PAGINAÇÃO
+        function initPagination() {
+            const pageNumbers = document.querySelectorAll('.page-number');
+            const prevBtn = document.querySelector('.pagination-btn:first-child');
+            const nextBtn = document.querySelector('.pagination-btn:last-child');
+
+            pageNumbers.forEach(page => {
+                page.addEventListener('click', function() {
+                    pageNumbers.forEach(p => p.classList.remove('active'));
+                    this.classList.add('active');
+                    document.querySelector('.results-toolbar').scrollIntoView({ behavior: 'smooth' });
+                    updatePaginationButtons();
+                });
+            });
+
+            if (prevBtn) {
+                prevBtn.addEventListener('click', function() {
+                    const active = document.querySelector('.page-number.active');
+                    const prev = active.previousElementSibling;
+                    if (prev && prev.classList.contains('page-number')) {
+                        active.classList.remove('active');
+                        prev.classList.add('active');
+                        updatePaginationButtons();
+                        document.querySelector('.results-toolbar').scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            }
+
+            if (nextBtn) {
+                nextBtn.addEventListener('click', function() {
+                    const active = document.querySelector('.page-number.active');
+                    const next = active.nextElementSibling;
+                    if (next && next.classList.contains('page-number')) {
+                        active.classList.remove('active');
+                        next.classList.add('active');
+                        updatePaginationButtons();
+                        document.querySelector('.results-toolbar').scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            }
+        }
+
+        function updatePaginationButtons() {
+            const active = document.querySelector('.page-number.active');
+            const prevBtn = document.querySelector('.pagination-btn:first-child');
+            const nextBtn = document.querySelector('.pagination-btn:last-child');
+            const pages = document.querySelectorAll('.page-number');
+            
+            if (prevBtn) prevBtn.disabled = active === pages[0];
+            if (nextBtn) nextBtn.disabled = active === pages[pages.length - 1];
+        }
+    </script>
+</body>
+</html>
